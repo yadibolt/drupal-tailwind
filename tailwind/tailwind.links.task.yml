@@ -1,0 +1,9 @@
+tailwind.settings.form.tab:
+  route_name: tailwind.settings.form
+  title: 'Settings'
+  base_route: tailwind.settings.form
+
+tailwind.sources_settings.form:.tab:
+  route_name: tailwind.sources_settings.form
+  title: 'Sources Settings'
+  base_route: tailwind.settings.form

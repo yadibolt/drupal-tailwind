@@ -1,0 +1,35 @@
+tailwind.settings:
+  type: config_object
+  label: 'Tailwind Compiler Settings'
+  mapping:
+    theme:
+      type: string
+      label: 'Theme to compile'
+    modules:
+      type: sequence
+      label: 'Modules to compile'
+      sequence:
+        type: string
+    autocompile:
+      type: boolean
+      label: 'Enable auto-compile on page load'
+    minify:
+      type: boolean
+      label: 'Optimize and minify the output'
+    optimize:
+      type: boolean
+      label: 'Optimize the output without minifying'
+    generate_sourcemap:
+      type: boolean
+      label: 'Generate a source map'
+    recompile_on_cc:
+      type: boolean
+      label: 'Recompile on Drupal cache clear'
+    extensions:
+      type: sequence
+      label: 'File extensions to compile'
+      sequence:
+        type: string
+    compile_extensions:
+      type: mapping
+      label: 'Enable compilation for file extensions per theme/module'

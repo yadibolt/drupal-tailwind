@@ -1,0 +1,14 @@
+services:
+  tailwind.tailwind_binary:
+    class: Drupal\tailwind\Binary\TailwindBinary
+    arguments: ['@extension.list.module', '@file_system']
+
+  tailwind.tailwind_compiler:
+    class: Drupal\tailwind\Compiler\TailwindCompiler
+    arguments: ['@tailwind.tailwind_binary', '@file_system', '@config.factory', '@extension.list.theme', '@extension.list.module', '@messenger']
+
+  tailwind.compile_subscriber:
+    class: Drupal\tailwind\EventSubscriber\TailwindCompileSubscriber
+    arguments: ['@tailwind.tailwind_compiler', '@config.factory']
+    tags:
+      - { name: event_subscriber }

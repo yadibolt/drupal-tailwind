@@ -1,0 +1,15 @@
+tailwind.settings.form:
+  path: '/admin/config/development/styles/tailwind'
+  defaults:
+    _form: '\Drupal\tailwind\Form\SettingsForm'
+    _title: 'Tailwind Compiler Settings'
+  requirements:
+    _permission: 'administer tailwind settings'
+
+tailwind.sources_settings.form:
+  path: '/admin/config/development/styles/tailwind/sources'
+  defaults:
+    _form: '\Drupal\tailwind\Form\SourcesSettingsForm'
+    _title: 'Tailwind Sources Settings'
+  requirements:
+    _permission: 'administer tailwind settings'

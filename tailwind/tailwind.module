@@ -1,0 +1,13 @@
+<?php
+
+function tailwind_cache_flush() {
+  $moduleConfiguration = Drupal::config('tailwind.settings');
+  $recompileOnCC = $moduleConfiguration->get('recompile_on_cc');
+
+  if ($recompileOnCC) {
+    $tailwindCompiler = Drupal::service('tailwind.tailwind_compiler');
+    $tailwindCompiler->compile();
+
+    Drupal::messenger()->addStatus('Tailwind has been successfully recompiled due to cache clear.');
+  }
+}

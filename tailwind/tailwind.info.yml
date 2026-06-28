@@ -1,0 +1,6 @@
+name: Tailwind
+description: Provides wrapper for Tailwind CLI compilation tool
+package: Administration
+type: module
+configure: tailwind.settings.form
+core_version_requirement: ^9.5 || ^10 || ^11
