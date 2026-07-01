@@ -124,12 +124,17 @@ class TailwindCompiler
    */
   public function shouldRecompile(): bool {
     $lastCompileTime = Drupal::state()->get('tailwind.last_compile_time', 0);
+    // files to exclude from compilation watcher
+    $excludedFileNames = ['tailwind.css'];
 
     $theme = $this->moduleConfiguration->get('theme');
     $themeExtensions = $this->moduleConfiguration->get('compile_extensions')["theme:$theme"] ?? [];
     if (!empty($themeExtensions)) {
       $themePath = DRUPAL_ROOT . '/' . ($this->themeExtensionList->getPath($theme) ?? '');
+
       foreach ($this->getFilesFromDirectory($themePath, $themeExtensions) as $file) {
+        if (in_array(basename($file), $excludedFileNames)) continue;
+
         if (filemtime($file) > $lastCompileTime) {
           return TRUE;
         }
