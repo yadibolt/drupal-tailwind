@@ -1,0 +1,13 @@
+{% if primary %}
+  <div class="w-full max-w-md my-2">
+    <h2 class="sr-only">{{ 'Primary tabs'|t }}</h2>
+    <ul class="flex gap-3 border-b border-gray-200">{{ primary }}</ul>
+  </div>
+{% endif %}
+
+{% if secondary %}
+  <div class="w-full max-w-md my-2">
+    <h2 class="sr-only">{{ 'Secondary tabs'|t }}</h2>
+    <ul class="flex gap-3 border-b border-gray-200">{{ secondary }}</ul>
+  </div>
+{% endif %}

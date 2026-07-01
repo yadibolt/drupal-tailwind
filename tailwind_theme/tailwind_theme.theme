@@ -1,0 +1,35 @@
+<?php
+
+use Drupal\Core\Link;
+use Drupal\Core\Cache\CacheableMetadata;
+
+function tailwind_theme_preprocess_breadcrumb(&$variables) {
+  if ($variables['breadcrumb']) {
+    $request = \Drupal::request();
+    $route_match = \Drupal::routeMatch();
+    $title = \Drupal::service('title_resolver')
+      ->getTitle($request, $route_match->getRouteObject());
+    if ($title) {
+      $variables['breadcrumb'][] = [
+        'text' => $title,
+        'url' => '',
+      ];
+
+      $cache = CacheableMetadata::createFromRenderArray($variables);
+      $cache->addCacheContexts(['url.path']);
+      if ($entity = $route_match->getParameter('node') ?? $route_match->getParameter('taxonomy_term')) {
+        $cache->addCacheableDependency($entity);
+      }
+      $cache->applyTo($variables);
+    }
+  }
+}
+
+function tailwind_theme_preprocess_menu_local_task(&$variables) {
+  $link = $variables['element']['#link'];
+  $url = $link['url'];
+  $options = $url->getOptions();
+  $url->setOptions($options + $link['localized_options']);
+  $variables['item'] = Link::fromTextAndUrl($link['title'], $url);
+
+}

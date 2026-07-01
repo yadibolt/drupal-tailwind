@@ -1,0 +1,25 @@
+{%
+  set item_active_classes = [
+    'inline-block',
+    'pb-2.5',
+    'text-sm',
+    'font-medium',
+    'text-gray-900',
+    'border-b-2',
+    'border-gray-900'
+] %}
+
+{% set item_inactive_classes = [
+  'inline-block',
+  'pb-2.5',
+  'text-sm',
+  'font-medium',
+  'text-gray-500',
+  'border-b-2',
+  'border-transparent',
+  'hover:text-gray-900'
+] %}
+
+<li>
+  {{ link(item.text, item.url, { 'class': is_active ? item_active_classes : item_inactive_classes }) }}
+</li>

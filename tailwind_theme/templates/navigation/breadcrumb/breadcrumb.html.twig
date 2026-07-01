@@ -1,0 +1,31 @@
+<nav aria-label="breadcrumb" class="my-2">
+  <ol class="flex items-center gap-1.5 text-sm text-gray-500">
+    {% for item in breadcrumb %}
+      {% if item.url %}
+        <li>
+          <a href="{{ item.url }}" class="hover:text-gray-900 transition-colors">{{ item.text }}</a>
+        </li>
+
+        {% if not loop.last %}
+          <li class="text-gray-400" aria-hidden="true">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </li>
+        {% endif %}
+      {% else %}
+        <li class="font-medium text-gray-900" aria-current="page">
+          {{ item.text }}
+        </li>
+
+        {% if not loop.last %}
+          <li class="text-gray-400" aria-hidden="true">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </li>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  </ol>
+</nav>

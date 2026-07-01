@@ -1,0 +1,7 @@
+tailwind:
+  js:
+    js/tailwind-messages.js: {}
+  css:
+    theme:
+      dist/css/tailwind.css: {}
+

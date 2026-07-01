@@ -1,0 +1,95 @@
+<div id="page">
+  <header id="header" class="header">
+    {% if page.above_header %}
+      <div class="region--above-header max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{ page.above_header }}
+      </div>
+    {% endif %}
+
+    <div id="header-content--wrapper" class="header-content--wrapper max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      {% if page.header %}
+        <div class="region--header">
+          {{ page.header }}
+        </div>
+      {% endif %}
+
+      {% if page.menu_primary %}
+        <div class="region--menu-primary">
+          <nav id="menu--primary" class="menu--primary" aria-label="{{ 'Main menu'|t }}">
+            {{ page.menu_primary }}
+          </nav>
+        </div>
+      {% endif %}
+
+      {% if page.menu_mobile %}
+        <div class="region--menu-mobile">
+          <nav id="menu--mobile" class="menu--mobile" aria-label="{{ 'Main mobile menu'|t }}">
+            {{ page.menu_mobile }}
+          </nav>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if page.below_header %}
+      <div class="region--below-header max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{ page.below_header }}
+      </div>
+    {% endif %}
+  </header>
+
+  <main id="main-content" class="main-content">
+    {% if page.above_content %}
+      <div class="region--above-content max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{ page.above_content }}
+      </div>
+    {% endif %}
+
+    {% if page.featured %}
+      <div class="region--featured max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{ page.featured }}
+      </div>
+    {% endif %}
+
+    <div id="main-content--wrapper" class="main-content--wrapper max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      {% if page.breadcrumb %}
+        <div class="region--breadcrumb">
+          {{ page.breadcrumb }}
+        </div>
+      {% endif %}
+
+      {% if page.content %}
+        <div class="region--content">
+          {{ page.content }}
+        </div>
+      {% endif %}
+    </div>
+
+    {% if page.below_content %}
+      <div class="region--below-content max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{ page.below_content }}
+      </div>
+    {% endif %}
+  </main>
+
+  <footer id="footer" class="footer">
+    {% if page.above_footer %}
+      <div class="region--above-footer max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{ page.above_footer }}
+      </div>
+    {% endif %}
+
+    <div id="footer-content--wrapper" class="footer-content--wrapper max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      {% if page.footer %}
+        <div class="region--footer">
+          {{ page.footer }}
+        </div>
+      {% endif %}
+    </div>
+
+    {% if page.below_footer %}
+      <div class="region--below-footer max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{ page.below_footer }}
+      </div>
+    {% endif %}
+  </footer>
+</div>

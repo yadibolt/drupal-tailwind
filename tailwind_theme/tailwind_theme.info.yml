@@ -1,0 +1,23 @@
+name: Tailwind Theme
+type: theme
+description: 'todo'
+base theme: false
+core_version_requirement: ^9 || ^10 || ^11
+
+libraries:
+  - tailwind_theme/tailwind
+
+regions:
+  above_header: 'Above header'
+  header: 'Header'
+  below_header: 'Below header'
+  menu_primary: 'Primary menu'
+  menu_mobile: 'Mobile menu'
+  above_content: 'Above content'
+  breadcrumb: 'Breadcrumb'
+  content: 'Content'
+  below_content: 'Below content'
+  featured: 'Featured'
+  above_footer: 'Above footer'
+  footer: 'Footer'
+  below_footer: 'Below footer'
