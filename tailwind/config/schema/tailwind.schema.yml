@@ -5,6 +5,9 @@ tailwind.settings:
     theme:
       type: string
       label: 'Theme to compile'
+    base_theme:
+      type: string
+      label: 'Base theme to compile'
     modules:
       type: sequence
       label: 'Modules to compile'
@@ -31,5 +34,10 @@ tailwind.settings:
       sequence:
         type: string
     compile_extensions:
-      type: mapping
+      type: sequence
       label: 'Enable compilation for file extensions per theme/module'
+      sequence:
+        type: sequence
+        label: 'File extensions'
+        sequence:
+          type: string

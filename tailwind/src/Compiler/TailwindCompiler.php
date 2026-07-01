@@ -141,6 +141,20 @@ class TailwindCompiler
       }
     }
 
+    $baseTheme = $this->moduleConfiguration->get('base_theme');
+    $baseThemeExtensions = $this->moduleConfiguration->get('compile_extensions')["base_theme:$baseTheme"] ?? [];
+    if (!empty($baseThemeExtensions)) {
+      $baseThemePath = DRUPAL_ROOT . '/' . ($this->themeExtensionList->getPath($baseTheme) ?? '');
+
+      foreach ($this->getFilesFromDirectory($baseThemePath, $baseThemeExtensions) as $file) {
+        if (in_array(basename($file), $excludedFileNames)) continue;
+
+        if (filemtime($file) > $lastCompileTime) {
+          return TRUE;
+        }
+      }
+    }
+
     $modules = $this->moduleConfiguration->get('modules') ?? [];
     foreach ($modules as $module) {
       $moduleExtensions = $this->moduleConfiguration->get('compile_extensions')["module:$module"] ?? [];
@@ -206,6 +220,7 @@ class TailwindCompiler
    */
   public function createTailwindFile(): void {
     $theme = $this->moduleConfiguration->get('theme');
+    $baseTheme = $this->moduleConfiguration->get('base_theme');
     $modules = $this->moduleConfiguration->get('modules');
     $compileExtensions = $this->moduleConfiguration->get('compile_extensions') ?? [];
 
@@ -213,21 +228,89 @@ class TailwindCompiler
     $fileContent .= '@import "tailwindcss" source(none);' . PHP_EOL;
 
     // theme
-    $fileContent .= PHP_EOL. '/** Theme (' . $theme . ') */' . PHP_EOL;
+    $addTheme = !empty($theme);
     $themePath = DRUPAL_ROOT . '/' . ($this->themeExtensionList->getPath($theme) ?? '');
     if (!is_dir($themePath . '/tailwind')) {
       $this->prepareThemeDirectories();
     }
     $themeExtensions = $compileExtensions["theme:$theme"] ?? [];
-    $fileContent .= $this->buildSourceStringFromExtensions($themeExtensions) . PHP_EOL;
+    if ($addTheme && !empty($themeExtensions)) {
+      $fileContent .= PHP_EOL. '/** Theme (' . $theme . ') */' . PHP_EOL;
+      $fileContent .= $this->buildSourceStringFromExtensions($themeExtensions) . PHP_EOL;
+    }
+
+    // base theme
+    $addBaseTheme = !empty($baseTheme) && $baseTheme !== $theme;
+    if ($addBaseTheme) {
+      $baseThemePath = DRUPAL_ROOT . '/' . ($this->themeExtensionList->getPath($baseTheme) ?? '');
+      $baseThemeExtensions = $compileExtensions["base_theme:$baseTheme"] ?? [];
+      $baseThemeRelativePath = $this->getRelativePathByPaths($themePath . '/tailwind', $baseThemePath);
+
+      // get all files and their paths with extension .css
+      $baseThemeFiles = $this->getFilesFromDirectory($baseThemePath, ['css']);
+
+      // import CSS files with the first line directive {tailwind:@import}
+      $baseThemeCSSImportPaths = [];
+      foreach ($baseThemeFiles as $file) {
+        $firstLine = fgets(fopen($file, 'r'));
+        if (str_contains($firstLine, '{tailwind:@import}')) {
+          $relativePath = $this->getRelativePathByPaths($themePath . '/tailwind', $file);
+          $baseThemeCSSImportPaths[] = $relativePath;
+        }
+      }
+
+      if (!empty($baseThemeExtensions)) {
+        $fileContent .= PHP_EOL. '/** Base Theme (' . $theme . ') */' . PHP_EOL;
+        $fileContent .= $this->buildSourceStringFromExtensions($baseThemeExtensions, $baseThemeRelativePath) . PHP_EOL;
+
+        foreach ($baseThemeCSSImportPaths as $importPath) {
+          $fileContent .= '@import "' . $importPath . '";' . PHP_EOL;
+        }
+      }
+    }
 
     // modules
-    $fileContent .= PHP_EOL. '/** Modules (' . implode(', ', $modules) . ') */' . PHP_EOL;
-    foreach ($modules as $module) {
-      $modulePath = DRUPAL_ROOT . '/' . ($this->moduleExtensionList->getPath($module) ?? '');
-      $moduleExtensions = $compileExtensions["module:$module"] ?? [];
-      $moduleRelativePath = $this->getRelativePathByPaths($themePath . '/tailwind', $modulePath);
-      $fileContent .= $this->buildSourceStringFromExtensions($moduleExtensions, $moduleRelativePath) . PHP_EOL;
+    $addModules = !empty($modules);
+    if ($addModules) {
+      $fileModulesContent = '';
+      $fileModulesCSSImportPaths = '';
+      foreach ($modules as $module) {
+        $modulePath = DRUPAL_ROOT . '/' . ($this->moduleExtensionList->getPath($module) ?? '');
+        $moduleExtensions = $compileExtensions["module:$module"] ?? [];
+
+        // get all files and their paths with extension .css
+        $moduleFiles = $this->getFilesFromDirectory($modulePath, ['css']);
+
+        // import CSS files with the first line directive {tailwind:@import}
+        $moduleCSSImportPaths = [];
+        foreach ($moduleFiles as $file) {
+          $firstLine = fgets(fopen($file, 'r'));
+          if (str_contains($firstLine, '{tailwind:@import}')) {
+            $relativePath = $this->getRelativePathByPaths($themePath . '/tailwind', $file);
+            $moduleCSSImportPaths[] = $relativePath;
+          }
+        }
+
+        if (!empty($moduleExtensions)) {
+          $moduleRelativePath = $this->getRelativePathByPaths($themePath . '/tailwind', $modulePath);
+          $fileModulesContent .= $this->buildSourceStringFromExtensions($moduleExtensions, $moduleRelativePath) . PHP_EOL;
+        }
+
+        if (!empty($moduleCSSImportPaths)) {
+          foreach ($moduleCSSImportPaths as $importPath) {
+            $fileModulesContent .= '@import "' . $importPath . '";' . PHP_EOL;
+          }
+        }
+
+        if ($module !== end($modules)) {
+          $fileModulesContent .= PHP_EOL;
+        }
+      }
+
+      if (!empty($fileModulesContent)) {
+        $fileContent .= PHP_EOL. '/** Modules (' . implode(', ', $modules) . ') */' . PHP_EOL;
+        $fileContent .= $fileModulesContent;
+      }
     }
 
     // user theme

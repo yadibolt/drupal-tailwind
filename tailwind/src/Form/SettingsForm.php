@@ -60,7 +60,7 @@ class SettingsForm extends FormBase
       'timestamp' => NULL,
     ]);
 
-    if ($lastStdout['message'] !== NULL) $this->appendStdoutMessage($form, $lastStdout);
+    if (!empty($lastStdout['message']) && !empty($lastStdout['timestamp'])) $this->appendStdoutMessage($form, $lastStdout);
 
     $this->appendCompilerRunnableInfo($form);
     $this->appendCompilationSources($form, $moduleConfiguration);
@@ -100,13 +100,47 @@ class SettingsForm extends FormBase
     $extensions = trim($extensions, ',');
     $extensions = explode(',', $extensions);
 
+    $theme = $form_state->getValue('theme');
+    $baseTheme = $form_state->getValue('base_theme');
+    $modules = $form_state->getValue('modules');
     $compileExtensions = $this->config('tailwind.settings')->get('compile_extensions') ?? [];
 
+    if (empty($baseTheme)) $baseTheme = NULL;
+
     $removedExtensions = [];
-    foreach ($compileExtensions as &$sourceExtensions) {
-      foreach ($sourceExtensions as $key => &$extension) {
+    foreach ($compileExtensions as $key => &$sourceExtensions) {
+      // if the key does not exist in the submitted values, we remove
+      // the entries for compile_extensions setting.
+      if (str_starts_with($key, 'theme:')) {
+        $name = str_replace('theme:', '', $key);
+        if ($name !== $theme) {
+          unset($compileExtensions[$key]);
+          var_dump($key);
+          continue;
+        }
+      }
+
+      if (str_starts_with($key, 'base_theme:')) {
+        $name = str_replace('base_theme:', '', $key);
+        if ($name !== $baseTheme) {
+          unset($compileExtensions[$key]);
+          continue;
+        }
+      }
+
+      if (str_starts_with($key, 'module:')) {
+        $name = str_replace('module:', '', $key);
+        if (!in_array($name, $modules)) {
+          unset($compileExtensions[$key]);
+          continue;
+        }
+      }
+
+      // if any of the extensions were removed,
+      // we remove its entry from all occasions in the compile_extensions setting.
+      foreach ($sourceExtensions as $extensionKey => &$extension) {
         if (!in_array($extension, $extensions)) {
-          unset($sourceExtensions[$key]);
+          unset($sourceExtensions[$extensionKey]);
           if (!in_array($extension, $removedExtensions)) {
             $removedExtensions[] = $extension;
           }
@@ -116,6 +150,7 @@ class SettingsForm extends FormBase
 
     $this->configFactory()->getEditable('tailwind.settings')
       ->set('theme', $form_state->getValue('theme'))
+      ->set('base_theme', $baseTheme)
       ->set('modules', $form_state->getValue('modules'))
       ->set('extensions', $extensions)
       ->set('compile_extensions', $compileExtensions)
@@ -216,6 +251,15 @@ class SettingsForm extends FormBase
       '#description' => $this->t('The theme Tailwind will be compiled for.'),
       '#options' => $themeOptions,
       '#default_value' => $moduleConfiguration->get('theme'),
+      '#required' => FALSE,
+    ];
+
+    $form['compilation_sources']['base_theme'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Base Theme'),
+      '#description' => $this->t('The base theme Tailwind will be compiled for.'),
+      '#options' => [NULL => $this->t('- No base theme -'), ...$themeOptions],
+      '#default_value' => $moduleConfiguration->get('base_theme') ?? 0,
       '#required' => FALSE,
     ];
 

@@ -1,0 +1,28 @@
+<?php
+
+use Drupal\Core\Extension\ModuleExtensionList;
+use Drupal\Core\File\FileSystem;
+
+function tailwind_install() {
+  Drupal::state()->set('tailwind.last_compile_time', 0);
+  Drupal::state()->set('tailwind.last_stdout', [
+    'message' => '',
+    'timestamp' => 0,
+  ]);
+}
+
+function tailwind_uninstall() {
+  Drupal::configFactory()->getEditable('tailwind.settings')->delete();
+  Drupal::state()->delete('tailwind.last_stdout');
+  Drupal::state()->delete('tailwind.last_compile_time');
+
+  /** @var ModuleExtensionList $modulePath */
+  $modulePath = Drupal::service('extension.list.module')->getPath('tailwind');
+  $binPath = DRUPAL_ROOT . '/' . ($modulePath ?? '');
+
+  if ($binPath != DRUPAL_ROOT . '/') {
+    /** @var FileSystem $filesystem */
+    $filesystem = Drupal::service('file_system');
+    $filesystem->deleteRecursive($binPath . '/bin');
+  }
+}

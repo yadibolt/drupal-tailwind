@@ -37,6 +37,7 @@ class SourcesSettingsForm extends FormBase
   {
     $moduleConfiguration = $this->config('tailwind.settings');
     $theme = $moduleConfiguration->get('theme');
+    $baseTheme = $moduleConfiguration->get('base_theme');
     $modules = $moduleConfiguration->get('modules') ?? [];
     $extensions = $moduleConfiguration->get('extensions') ?? [];
     $sourceExtensions = $moduleConfiguration->get('compile_extensions') ?? [];
@@ -52,6 +53,7 @@ class SourcesSettingsForm extends FormBase
     }
 
     $this->appendThemeExtensionConfiguration($form, $theme, $extensionOptions, $sourceExtensions);
+    if (!empty($baseTheme)) $this->appendBaseThemeExtensionConfiguration($form, $baseTheme, $extensionOptions, $sourceExtensions);
     if (!empty($modules)) $this->appendModuleExtensionConfiguration($form, $modules, $extensionOptions, $sourceExtensions);
 
     $form['actions'] = [
@@ -73,23 +75,39 @@ class SourcesSettingsForm extends FormBase
   {
     $themeExtensions = $form_state->getValue('theme');
     $moduleExtensions = $form_state->getValue('modules');
+    $baseThemeExtensions = $form_state->getValue('base_theme');
 
     $values = [];
-    foreach ($themeExtensions as $key => $value) {
-      $extensions = $value['extensions'] ?? [];
+    if (!empty($themeExtensions)) {
+      foreach ($themeExtensions as $key => $value) {
+        $extensions = $value['extensions'] ?? [];
 
-      if (!empty($extensions)) {
-        $selected = array_keys(array_filter($extensions));
-        $values[$key] = $selected;
+        if (!empty($extensions)) {
+          $selected = array_keys(array_filter($extensions));
+          $values[$key] = $selected;
+        }
       }
     }
 
-    foreach ($moduleExtensions as $key => $value) {
-      $extensions = $value['extensions'] ?? [];
+    if (!empty($baseThemeExtensions)) {
+      foreach ($baseThemeExtensions as $key => $value) {
+        $extensions = $value['extensions'] ?? [];
 
-      if (!empty($extensions)) {
-        $selected = array_keys(array_filter($extensions));
-        $values[$key] = $selected;
+        if (!empty($extensions)) {
+          $selected = array_keys(array_filter($extensions));
+          $values[$key] = $selected;
+        }
+      }
+    }
+
+    if (!empty($moduleExtensions)) {
+      foreach ($moduleExtensions as $key => $value) {
+        $extensions = $value['extensions'] ?? [];
+
+        if (!empty($extensions)) {
+          $selected = array_keys(array_filter($extensions));
+          $values[$key] = $selected;
+        }
       }
     }
 
@@ -117,6 +135,26 @@ class SourcesSettingsForm extends FormBase
       '#title' => $themeName,
       '#options' => $extensionOptions,
       '#default_value' => $sourceExtensions['theme:' . $theme] ?? [],
+    ];
+  }
+
+  protected function appendBaseThemeExtensionConfiguration(array &$form, string $baseTheme, array $extensionOptions, array $sourceExtensions): void {
+    $themeInfo = $this->themeExtensionList->getAllAvailableInfo();
+    $baseThemeName = $themeInfo[$baseTheme]['name'] ?? $baseTheme;
+
+    $form['base_theme'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Base Theme'),
+      '#description' => $this->t('Select the file extensions to compile for base theme.'),
+      '#tree' => TRUE,
+    ];
+
+    $form['base_theme']["base_theme:$baseTheme"] = ['#type' => 'container'];
+    $form['base_theme']["base_theme:$baseTheme"]['extensions'] = [
+      '#type' => 'checkboxes',
+      '#title' => $baseThemeName,
+      '#options' => $extensionOptions,
+      '#default_value' => $sourceExtensions['base_theme:' . $baseTheme] ?? [],
     ];
   }
 

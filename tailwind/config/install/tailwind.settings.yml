@@ -3,4 +3,4 @@ minify: false
 optimize: false
 generate_sourcemap: false
 recompile_on_cc: false
-extensions: ['php', 'twig', 'js']
+extensions: ['php', 'twig', 'css']
